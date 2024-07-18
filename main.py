@@ -1,16 +1,20 @@
 import numpy as np
 import nltk as nl
-from nltk.tokenize import word_tokenize
+from nltk.tokenize import word_tokenize, RegexpTokenizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.corpus import stopwords
 import scrapy
 from scrapy.crawler import CrawlerProcess
 import os
 import matplotlib.pyplot as plt
-
+from nltk.stem import WordNetLemmatizer
+from nltk.stem import porter
+from wordcloud import WordCloud
 
 nl.download('stopwords')
 nl.download('punkt')
+nl.download('omw-1.4')
+nl.download('wordnet')
 
 
 class BodyTextSpider(scrapy.Spider):
@@ -113,15 +117,44 @@ if __name__ == '__main__':
     # feature_names = vectorizer.get_feature_names_out()
     # dense_tfidf_matrix = tfidf_matrix.todense()
     # print_sorted_tfidf(dense_tfidf_matrix, feature_names, articles)
+    stemmer = porter.PorterStemmer()
+    tok = RegexpTokenizer(r"\b\w+(?:[`'’]\w+)?(?!'s)\b")
     text = ""
+
+    exclusions = ["tikva hadasha", "yesh atid", "new hope"]
+
     for article in articles:
         with open(article, "r", encoding='utf-8') as f:
-            text += f"{f.read()} "
+            a = f.read().lower()
+            for exc in exclusions:
+                a = a.replace(exc, "_".join(exc.split(" ")))
 
-    vectorizer = TfidfVectorizer(stop_words='english', encoding='utf-8')
+            tokens = tok.tokenize(a)
+            # tokens = [stemmer.stem(word) for word in tokens]
+            text += " ".join(tokens)
+    text = text.replace("'s", "")
+    text = text.replace("’s", "")
+
+
+
+    vectorizer = TfidfVectorizer(token_pattern=r"\b\w+(?:[`'’]\w+)?(?!'s)\b", stop_words='english', encoding='utf-8')
     tfidf_matrix = vectorizer.fit_transform([text])
     feature_names = vectorizer.get_feature_names_out()
+    new_features = []
+    for feature in feature_names:
+        if "_" in feature:
+            feature = feature.replace("_", " ")
+        new_features.append(feature)
     dense_tfidf_matrix = tfidf_matrix.todense()
-    print_sorted_tfidf(dense_tfidf_matrix, feature_names, "All text")
+    print_sorted_tfidf(dense_tfidf_matrix, new_features, "All text")
     # print_sorted_tfidf(dense_tfidf_matrix, feature_names, text)
-    plot_reality_check(dense_tfidf_matrix, feature_names, 30)
+    plot_reality_check(dense_tfidf_matrix, new_features, 30)
+
+    tf_idf_dict = {new_features[i]: dense_tfidf_matrix[0,i] for i in range(len(new_features))}
+    wordcloud = WordCloud(width=800, height=400, background_color='white').generate_from_frequencies(tf_idf_dict)
+
+
+    plt.figure(figsize=(10, 5))
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.axis('off')
+    plt.show()
