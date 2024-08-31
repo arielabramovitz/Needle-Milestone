@@ -104,16 +104,16 @@ def plot_reality_check(dense_matrix, feature_names, top_n_words):
     plt.show()
 
 
-def get_articles_list(elections):
+def get_articles_list(folder):
     jerusalem_string = "jerusalem_article"
     times_string = "times_article"
     range_articles = 11
-    articles = [
-        f'{elections}\{name}{i}.txt'
+    articles_lst = [
+        f'{folder}\{name}{i}.txt'
         for name in [jerusalem_string, times_string]
         for i in range(1, range_articles)
     ]
-    return articles
+    return articles_lst
 
 
 if __name__ == '__main__':
@@ -122,7 +122,10 @@ if __name__ == '__main__':
     # process.start()
 
     stop_words = set(stopwords.words('english'))
-    articles = get_articles_list("elections2021")
+    articles = []
+    articles_folders = ["elections2021", "elections2022"]
+    for folder_name in articles_folders:
+        articles += get_articles_list(folder_name)
 
     # vectorizer = TfidfVectorizer(input='filename', stop_words='english', encoding='utf-8')
     # tfidf_matrix = vectorizer.fit_transform(articles)
