@@ -124,7 +124,8 @@ if __name__ == '__main__':
     # process.start()
 
     stop_words = set(stopwords.words('english'))
-    articles_folders = ["elections2020", "elections2021", "elections2022"]
+    articles_folders = ["elections2019b", "elections2020",
+                        "elections2021", "elections2022"]
     articles = get_articles_list(articles_folders)
 
     # vectorizer = TfidfVectorizer(input='filename', stop_words='english', encoding='utf-8')
@@ -154,7 +155,8 @@ if __name__ == '__main__':
             text += " " + " ".join(tokens)
     text = text.replace("'s", "")
     text = text.replace("’s", "")
-    vectorizer = TfidfVectorizer(token_pattern=r"\b\w+(?:[`'’]\w+)?(?!'s)\b", stop_words=list(stop_words), encoding='utf-8')
+    vectorizer = TfidfVectorizer(token_pattern=r"\b\w+(?:[`'’]\w+)?(?!'s)\b",
+                                 stop_words=list(stop_words), encoding='utf-8')
     tfidf_matrix = vectorizer.fit_transform([text])
     feature_names = vectorizer.get_feature_names_out()
     new_features = []
@@ -166,8 +168,10 @@ if __name__ == '__main__':
     # print_sorted_tfidf(dense_tfidf_matrix, new_features, "All text")
     # print_sorted_tfidf(dense_tfidf_matrix, feature_names, text)
     plot_reality_check(dense_tfidf_matrix, new_features, 30)
-    tf_idf_dict = {new_features[i]: dense_tfidf_matrix[0, i] for i in range(len(new_features))}
-    wordcloud = WordCloud(width=800, height=400, background_color='white').generate_from_frequencies(tf_idf_dict)
+    tf_idf_dict = {new_features[i]: dense_tfidf_matrix[0, i] for i in range(
+        len(new_features))}
+    wordcloud = WordCloud(width=800, height=400, background_color='white'
+                          ).generate_from_frequencies(tf_idf_dict)
     plt.figure(figsize=(10, 5))
     plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis('off')
