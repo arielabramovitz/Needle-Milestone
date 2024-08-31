@@ -104,15 +104,17 @@ def plot_reality_check(dense_matrix, feature_names, top_n_words):
     plt.show()
 
 
-def get_articles_list(folder):
-    jerusalem_string = "jerusalem_article"
-    times_string = "times_article"
-    range_articles = 11
-    articles_lst = [
-        f'{folder}\{name}{i}.txt'
-        for name in [jerusalem_string, times_string]
-        for i in range(1, range_articles)
-    ]
+def get_articles_list(folders):
+    articles_lst = []
+    for folder in folders:
+        jerusalem_string = "jerusalem_article"
+        times_string = "times_article"
+        range_articles = 11
+        articles_lst += [
+            f'{folder}\{name}{i}.txt'
+            for name in [jerusalem_string, times_string]
+            for i in range(1, range_articles)
+        ]
     return articles_lst
 
 
@@ -122,16 +124,15 @@ if __name__ == '__main__':
     # process.start()
 
     stop_words = set(stopwords.words('english'))
-    articles = []
     articles_folders = ["elections2021", "elections2022"]
-    for folder_name in articles_folders:
-        articles += get_articles_list(folder_name)
+    articles = get_articles_list(articles_folders)
 
     # vectorizer = TfidfVectorizer(input='filename', stop_words='english', encoding='utf-8')
     # tfidf_matrix = vectorizer.fit_transform(articles)
     # feature_names = vectorizer.get_feature_names_out()
     # dense_tfidf_matrix = tfidf_matrix.todense()
     # print_sorted_tfidf(dense_tfidf_matrix, feature_names, articles)
+
     stemmer = porter.PorterStemmer()
     tok = RegexpTokenizer(r"\b\w+(?:[`'’]\w+)?(?!'s)\b")
     text = ""
