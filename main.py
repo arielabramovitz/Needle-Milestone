@@ -104,14 +104,26 @@ def plot_reality_check(dense_matrix, feature_names, top_n_words):
     plt.show()
 
 
+def get_articles_list(elections):
+    jerusalem_string = "jerusalem_article"
+    times_string = "times_article"
+    range_articles = 11
+    articles = [
+        f'{elections}\{name}{i}.txt'
+        for name in [jerusalem_string, times_string]
+        for i in range(1, range_articles)
+    ]
+    return articles
+
+
 if __name__ == '__main__':
     # process = CrawlerProcess()
     # process.crawl(BodyTextSpider)
     # process.start()
+
     stop_words = set(stopwords.words('english'))
-    articles = [f'article{i}.txt' for i in range(1, 11)]
-    for i in range(1, 11):
-        articles.append(f'times_article{i}.txt')
+    articles = get_articles_list("elections2021")
+
     # vectorizer = TfidfVectorizer(input='filename', stop_words='english', encoding='utf-8')
     # tfidf_matrix = vectorizer.fit_transform(articles)
     # feature_names = vectorizer.get_feature_names_out()
