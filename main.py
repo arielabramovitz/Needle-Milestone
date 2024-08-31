@@ -124,7 +124,7 @@ if __name__ == '__main__':
     # process.start()
 
     stop_words = set(stopwords.words('english'))
-    articles_folders = ["elections2019b", "elections2020",
+    articles_folders = ["elections2019a", "elections2019b", "elections2020",
                         "elections2021", "elections2022"]
     articles = get_articles_list(articles_folders)
 
