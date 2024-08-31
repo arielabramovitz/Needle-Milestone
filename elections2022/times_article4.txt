@@ -1,0 +1,39 @@
+Entire voter registry exposed again, this time in Shas party security breach
+Addresses, phone numbers, family connections all accessible; Privacy Authority was aware of issue a while ago; Shas says it took swift action to plug unauthorized access
+
+A security breach in a Shas party database left all details of the 6.5 million citizens on Israel’s voter registry exposed to hackers, with personal information such as phone numbers and family connections available online, in yet another in a string of massive leaks that have plagued recent Israeli elections.
+
+The security breach, easily exploitable by anyone with a web browser and relatively simple technical skills, enabled access to even more information than has been exposed in the past, The Marker business daily reported Sunday.
+
+The state-run Privacy Protection Authority admitted that it had known about the breach for a while before it was reported in the media, and said the hole had been plugged.
+
+All political parties are given the voter registry during an election period and use the information to plan campaign strategies. Israeli elections are scheduled for Tuesday.
+
+According to the report, the Shas system enables its activists to connect via the internet to its database.
+
+The system is divided hierarchically, and the further up the user is, the more information they have access to. While regional users can only access their local cities, system administrators have access to it all.
+
+The security breach allowed anyone with a web browser to access the information as a top-level administrator and download all of the data, including identity numbers, year of birth, full name, home address, and father’s name. In addition, the Shas database included voters’ telephone numbers, both cell and landline, and information about their families such as parents, spouses, and children.
+
+Beyond that, the Shas database has other personal information that had been gleaned by activists about voters, including those who have no connection to the party.
+
+The report said that parties are supposed to destroy all the information after each election, but the Shas data appeared to include details about past voting patterns as well.
+
+The database also holds personal details about Shas activists, such as their bank details and requests made to Shas party representatives at the municipal and parliament level. According to the report, some of the information, among other things, related to complaints of sexual harassment.
+
+The Privacy Protection Authority said in a statement that the security concern with the Shas system “has been known to the authority for a long time, and this was even before it was published in the various media.
+
+“This incident has been dealt with in the last few days and the authority is closely monitoring and updating the party, including providing instructions for dealing with the incident efficiently and quickly,” it adedd.
+
+Shas said in a statement: “All the information held by Shas is lawfully collected by it and held and preserved in accordance with the provisions of the law, overseen by the best security experts in Israel.”
+
+After receiving information about possible “illegal intrusion into the database,” the party said, it implemented a number of changes “so that all information will be kept in a very secure manner.”
+
+Shas said it will “take action as necessary against any entity found to have acted in violation of the law.”
+
+Before the last election in March 2021 personal details of all voters were published online. The data breach was apparently linked to the Elector app, which was blamed for previous leaks when it was being used by the-then ruling Likud party to boost turnout.
+
+A year earlier, ahead of the March 2020 elections, a data breach on Elector resulted in one of the largest and most compromising leaks of Israelis’ personal information in the nation’s history.
+
+Israeli election law gives political parties access to the registry, but forbids handing it to a third party.
+
