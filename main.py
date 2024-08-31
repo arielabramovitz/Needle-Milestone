@@ -124,7 +124,7 @@ if __name__ == '__main__':
     # process.start()
 
     stop_words = set(stopwords.words('english'))
-    articles_folders = ["elections2021", "elections2022"]
+    articles_folders = ["elections2020", "elections2021", "elections2022"]
     articles = get_articles_list(articles_folders)
 
     # vectorizer = TfidfVectorizer(input='filename', stop_words='english', encoding='utf-8')
