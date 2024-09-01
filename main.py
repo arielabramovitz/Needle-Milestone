@@ -16,6 +16,51 @@ nl.download('punkt')
 nl.download('omw-1.4')
 nl.download('wordnet')
 
+health_words = [
+    'health', 'medicine', 'hospital', 'doctor', 'nurse', 'medical',
+    'disease', 'treatment', 'vaccine', 'mental', 'wellness', 'clinic',
+    'surgery', 'diagnosis', 'nutrition', 'healthcare', 'illness',
+    'epidemic', 'pandemic', 'therapy', 'fitness', 'exercise', 'hygiene',
+    'pharmacy', 'patient', 'immunity', 'infection', 'symptom', 'prevention']
+
+crime_words = [
+    'crime', 'criminal', 'theft', 'murder', 'assault', 'robbery',
+    'fraud', 'violence', 'homicide', 'burglary', 'arrest', 'police',
+    'law', 'justice', 'illegal', 'offense', 'penalty', 'punishment',
+    'court', 'trial', 'conviction', 'prison', 'jail', 'felony',
+    'misdemeanor', 'vandalism', 'smuggling', 'drug', 'gang', 'cybercrime']
+
+education_words = [
+    'education', 'school', 'university', 'college', 'student', 'teacher',
+    'academic', 'curriculum', 'lecture', 'exam', 'degree', 'diploma',
+    'learning', 'scholarship', 'tuition', 'classroom', 'literacy',
+    'enrollment', 'graduate', 'study', 'syllabus', 'assignment',
+    'research', 'institution', 'faculty', 'course', 'seminar', 'training',
+    'evaluation', 'knowledge']
+
+defense_words = [
+    'defense', 'military', 'army', 'navy', 'air force', 'security',
+    'war', 'weapon', 'conflict', 'battle', 'soldier', 'troop',
+    'strategy', 'tactic', 'border', 'protection', 'national security',
+    'alliance', 'missile', 'nuclear', 'defense minister', 'army chief',
+    'intelligence', 'surveillance', 'combat', 'operation', 'patrol',
+    'deployment', 'fortification', 'peacekeeping']
+
+foreign_relations_words = [
+    'diplomacy', 'foreign', 'international', 'relations', 'ambassador',
+    'embassy', 'treaty', 'agreement', 'ally', 'negotiation', 'trade',
+    'export', 'import', 'sanction', 'policy', 'summit', 'cooperation',
+    'conflict', 'global', 'united nations', 'european union', 'nato',
+    'partnership', 'dialogue', 'foreign minister', 'geopolitics',
+    'bilateral', 'multilateral', 'consulate', 'visa']
+
+religion_words = [
+    'religion', 'faith', 'church', 'mosque', 'synagogue', 'temple',
+    'god', 'spiritual', 'belief', 'worship', 'prayer', 'bible', 'quran',
+    'torah', 'clergy', 'pastor', 'imam', 'rabbi', 'ritual', 'ceremony',
+    'doctrine', 'theology', 'pilgrimage', 'saint', 'divine', 'monk',
+    'nun', 'religious', 'sect', 'denomination']
+
 
 class BodyTextSpider(scrapy.Spider):
     name = "bodytext"
@@ -118,6 +163,25 @@ def get_articles_list(folders):
     return articles_lst
 
 
+def count_topic_words(tokens, tf_idf_dict, topic_words):
+    count = sum((tf_idf_dict[token] * 100) for token in tokens
+                if token in topic_words)
+    return count
+
+
+def analyze_text_by_topics(tokens, tf_idf_dict):
+    results = {
+        'Health': count_topic_words(tokens, tf_idf_dict, health_words),
+        'Crime': count_topic_words(tokens, tf_idf_dict, crime_words),
+        'Education': count_topic_words(tokens, tf_idf_dict, education_words),
+        'Defense': count_topic_words(tokens, tf_idf_dict, defense_words),
+        'Foreign Relations': count_topic_words(tokens, tf_idf_dict,
+                                               foreign_relations_words),
+        'Religion': count_topic_words(tokens, tf_idf_dict, religion_words)
+    }
+    return results
+
+
 if __name__ == '__main__':
     # process = CrawlerProcess()
     # process.crawl(BodyTextSpider)
@@ -137,8 +201,8 @@ if __name__ == '__main__':
     stemmer = porter.PorterStemmer()
     tok = RegexpTokenizer(r"\b\w+(?:[`'’]\w+)?(?!'s)\b")
     text = ""
-
     exclusions = ["tikva hadasha", "yesh atid", "new hope"]
+
     total_len = 0
     for article in articles:
         with open(article, "r", encoding='utf-8') as f:
@@ -155,6 +219,7 @@ if __name__ == '__main__':
             text += " " + " ".join(tokens)
     text = text.replace("'s", "")
     text = text.replace("’s", "")
+
     vectorizer = TfidfVectorizer(token_pattern=r"\b\w+(?:[`'’]\w+)?(?!'s)\b",
                                  stop_words=list(stop_words), encoding='utf-8')
     tfidf_matrix = vectorizer.fit_transform([text])
@@ -164,12 +229,16 @@ if __name__ == '__main__':
         if "_" in feature:
             feature = feature.replace("_", " ")
         new_features.append(feature)
+
     dense_tfidf_matrix = tfidf_matrix.todense()
     # print_sorted_tfidf(dense_tfidf_matrix, new_features, "All text")
     # print_sorted_tfidf(dense_tfidf_matrix, feature_names, text)
     plot_reality_check(dense_tfidf_matrix, new_features, 30)
     tf_idf_dict = {new_features[i]: dense_tfidf_matrix[0, i] for i in range(
         len(new_features))}
+
+    print(analyze_text_by_topics(new_features, tf_idf_dict))
+
     wordcloud = WordCloud(width=800, height=400, background_color='white'
                           ).generate_from_frequencies(tf_idf_dict)
     plt.figure(figsize=(10, 5))
