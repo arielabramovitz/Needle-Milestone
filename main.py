@@ -149,18 +149,39 @@ def plot_reality_check(dense_matrix, feature_names, top_n_words):
     plt.show()
 
 
-def get_articles_list(folders):
+def get_articles_list(folders, news_lst):
     articles_lst = []
     for folder in folders:
-        jerusalem_string = "jerusalem_article"
-        times_string = "times_article"
         range_articles = 11
         articles_lst += [
             f'{folder}\{name}{i}.txt'
-            for name in [jerusalem_string, times_string]
+            for name in news_lst
             for i in range(1, range_articles)
         ]
     return articles_lst
+
+
+def get_election_list(folder, news_lst):
+    election_lst = []
+    range_articles = 11
+    election_lst += [
+        f'{folder}\{name}{i}.txt'
+        for name in news_lst
+        for i in range(1, range_articles)
+    ]
+    return election_lst
+
+
+def get_all_elections_list(folders, news_lst):
+    elections_lst = []
+    for folder in folders:
+        elections_lst.append(get_election_list(folder, news_lst))
+    elect_2019a = elections_lst[0]
+    elect_2019b = elections_lst[1]
+    elect_2020 = elections_lst[2]
+    elect_2021 = elections_lst[3]
+    elect_2022 = elections_lst[4]
+    return elect_2019a, elect_2019b, elect_2020, elect_2021, elect_2022
 
 
 def count_topic_words(tokens, tf_idf_dict, topic_words):
@@ -182,28 +203,10 @@ def analyze_text_by_topics(tokens, tf_idf_dict):
     return results
 
 
-if __name__ == '__main__':
-    # process = CrawlerProcess()
-    # process.crawl(BodyTextSpider)
-    # process.start()
-
-    stop_words = set(stopwords.words('english'))
-    articles_folders = ["elections2019a", "elections2019b", "elections2020",
-                        "elections2021", "elections2022"]
-    articles = get_articles_list(articles_folders)
-
-    # vectorizer = TfidfVectorizer(input='filename', stop_words='english', encoding='utf-8')
-    # tfidf_matrix = vectorizer.fit_transform(articles)
-    # feature_names = vectorizer.get_feature_names_out()
-    # dense_tfidf_matrix = tfidf_matrix.todense()
-    # print_sorted_tfidf(dense_tfidf_matrix, feature_names, articles)
-
-    stemmer = porter.PorterStemmer()
+def tokenize_text_from_articles(articles):
     tok = RegexpTokenizer(r"\b\w+(?:[`'’]\w+)?(?!'s)\b")
-    text = ""
     exclusions = ["tikva hadasha", "yesh atid", "new hope"]
-
-    total_len = 0
+    text = ""
     for article in articles:
         with open(article, "r", encoding='utf-8') as f:
             a = f.read().lower()
@@ -219,10 +222,53 @@ if __name__ == '__main__':
             text += " " + " ".join(tokens)
     text = text.replace("'s", "")
     text = text.replace("’s", "")
+    return text
+
+
+if __name__ == '__main__':
+    # process = CrawlerProcess()
+    # process.crawl(BodyTextSpider)
+    # process.start()
+
+    stop_words = set(stopwords.words('english'))
+    articles_folders = ["elections2019a", "elections2019b", "elections2020",
+                        "elections2021", "elections2022"]
+    jerusalem_string = "jerusalem_article"
+    times_string = "times_article"
+    news_list = [jerusalem_string, times_string]
+
+    all_articles = get_articles_list(articles_folders, news_list)
+    jerusalem_articles = get_articles_list(articles_folders,
+                                           [jerusalem_string])
+    times_articles = get_articles_list(articles_folders,
+                                       [times_string])
+
+    (elect_2019a_article, elect_2019b_article, elect_2020_article,
+     elect_2021_article, elect_2022_article) = (
+        get_all_elections_list(articles_folders, news_list))
+
+    # vectorizer = TfidfVectorizer(input='filename', stop_words='english', encoding='utf-8')
+    # tfidf_matrix = vectorizer.fit_transform(articles)
+    # feature_names = vectorizer.get_feature_names_out()
+    # dense_tfidf_matrix = tfidf_matrix.todense()
+    # print_sorted_tfidf(dense_tfidf_matrix, feature_names, articles)
+
+    stemmer = porter.PorterStemmer()
+
+    total_len = 0
+
+    all_text = tokenize_text_from_articles(all_articles)
+    jerusalem_text = tokenize_text_from_articles(jerusalem_articles)
+    times_text = tokenize_text_from_articles(times_articles)
+    elect_2019a_text = tokenize_text_from_articles(elect_2019a_article)
+    elect_2019b_text = tokenize_text_from_articles(elect_2019b_article)
+    elect_2020_text = tokenize_text_from_articles(elect_2020_article)
+    elect_2021_text = tokenize_text_from_articles(elect_2021_article)
+    elect_2022_text = tokenize_text_from_articles(elect_2022_article)
 
     vectorizer = TfidfVectorizer(token_pattern=r"\b\w+(?:[`'’]\w+)?(?!'s)\b",
                                  stop_words=list(stop_words), encoding='utf-8')
-    tfidf_matrix = vectorizer.fit_transform([text])
+    tfidf_matrix = vectorizer.fit_transform([all_text])
     feature_names = vectorizer.get_feature_names_out()
     new_features = []
     for feature in feature_names:
