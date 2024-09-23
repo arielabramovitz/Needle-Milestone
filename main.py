@@ -61,6 +61,94 @@ religion_words = [
     'doctrine', 'theology', 'pilgrimage', 'saint', 'divine', 'monk',
     'nun', 'religious', 'sect', 'denomination']
 
+candidate_names_2022 = {
+    "Likud": "Benjamin Netanyahu",
+    "Yesh Atid": "Yair Lapid",
+    "Shas": "Aryeh Deri",
+    "Blue and White": "Benny Gantz",
+    "Yamina": "Ayelet Shaked",
+
+}
+
+candidate_names_2021 = {
+    "Likud": "Benjamin Netanyahu",
+    "Yesh Atid–Telem": "Yair Lapid, Moshe Ya'alon",
+    "Blue and White": "Benny Gantz",
+    "Derekh Eretz": "Yoaz Hendel, Zvi Hauser",
+    "Joint List": "Ayman Odeh",
+
+}
+
+candidate_names_2020 = {
+    "Blue and White": "Benny Gantz",
+    "Likud": "Benjamin Netanyahu",
+    "Joint List": "Ayman Odeh",
+    "Shas": "Aryeh Deri",
+    "Yisrael Beiteinu": "Avigdor Lieberman",
+
+}
+
+candidate_names_2019a = {
+    "Likud": "Benjamin Netanyahu",
+    "Labor": "Avi Gabbay",
+    "Hatnua": "Tzipi Livni",
+    "Joint List": "Ayman Odeh",
+    "Ta'al": "Ahmad Tibi",
+
+}
+
+candidate_names_2019b = {
+    "Likud": "Benjamin Netanyahu",
+    "Blue and White": "Benny Gantz, Yair Lapid",
+    "Shas": "Aryeh Deri",
+    "United Torah Judaism": "Yaakov Litzman",
+    "Hadash–Ta'al": "Ayman Odeh",
+
+}
+
+candidate_names_2022_keys = [
+    "Likud",
+    "Yesh Atid",
+    "Shas",
+    "Blue and White",
+    "Yamina",
+
+]
+
+candidate_names_2021_keys = [
+    "Likud",
+    "Yesh Atid",
+    "Blue and White",
+    "Derekh Eretz",
+    "Joint List",
+
+]
+
+candidate_names_2020_keys = [
+    "Blue and White",
+    "Likud",
+    "Joint List",
+    "Shas",
+    "Yisrael Beiteinu",
+
+]
+
+candidate_names_2019a_keys = [
+    "Likud",
+    "Labor",
+    "Hatnua",
+    "Joint List",
+    "Ta'al",
+]
+
+candidate_names_2019b_keys = [
+    "Likud",
+    "Blue and White",
+    "Shas",
+    "United Torah Judaism",
+    "Hadash–Ta'al",
+]
+
 
 class BodyTextSpider(scrapy.Spider):
     name = "bodytext"
@@ -205,7 +293,7 @@ def analyze_text_by_topics(tokens, tf_idf_dict):
 
 def tokenize_text_from_articles(articles):
     tok = RegexpTokenizer(r"\b\w+(?:[`'’]\w+)?(?!'s)\b")
-    exclusions = ["tikva hadasha", "yesh atid", "new hope"]
+    exclusions = ["yesh atid-telem", "tikva hadasha", "yesh atid", "new hope", "blue and white", "derekh eretz", "joint list", "yisrael beiteinu", "united torah judaism"]
     text = ""
     for article in articles:
         with open(article, "r", encoding='utf-8') as f:
@@ -223,6 +311,23 @@ def tokenize_text_from_articles(articles):
     text = text.replace("'s", "")
     text = text.replace("’s", "")
     return text
+
+
+def get_tfidf_of_candidates(vectorizer, election_text, candidate_names):
+    tf_idf_matrix = vectorizer.fit_transform([election_text])
+    feature_names = vectorizer.get_feature_names_out()
+    new_features = []
+    for feature in feature_names:
+        if "_" in feature:
+            feature = feature.replace("_", " ")
+        if "-" in feature:
+            # yesh atid-telem
+            feature = feature.split("-")[0]
+        new_features.append(feature)
+    dense_tfidf_matrix = tf_idf_matrix.todense()
+    tf_idf_dict = {new_features[i]: dense_tfidf_matrix[0, i] for i in range(
+        len(new_features))}
+    return {a.lower(): tf_idf_dict[a.lower()] for a in candidate_names}
 
 
 if __name__ == '__main__':
@@ -268,7 +373,8 @@ if __name__ == '__main__':
 
     vectorizer = TfidfVectorizer(token_pattern=r"\b\w+(?:[`'’]\w+)?(?!'s)\b",
                                  stop_words=list(stop_words), encoding='utf-8')
-    tfidf_matrix = vectorizer.fit_transform([all_text])
+
+    tfidf_matrix = vectorizer.fit_transform([elect_2021_text])
     feature_names = vectorizer.get_feature_names_out()
     new_features = []
     for feature in feature_names:
@@ -283,7 +389,7 @@ if __name__ == '__main__':
     tf_idf_dict = {new_features[i]: dense_tfidf_matrix[0, i] for i in range(
         len(new_features))}
 
-    print(analyze_text_by_topics(new_features, tf_idf_dict))
+    a = analyze_text_by_topics(new_features, tf_idf_dict)
 
     wordcloud = WordCloud(width=800, height=400, background_color='white'
                           ).generate_from_frequencies(tf_idf_dict)
@@ -291,3 +397,5 @@ if __name__ == '__main__':
     plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis('off')
     plt.show()
+
+    # party_dict = {name.lower(): count_topic_words(new_features, tf_idf_dict, candidate_names_2022) for name in candidate_names_2022_keys}
