@@ -61,94 +61,105 @@ religion_words = [
     'doctrine', 'theology', 'pilgrimage', 'saint', 'divine', 'monk',
     'nun', 'religious', 'sect', 'denomination']
 
+US_election_words = [
+    'biden', 'trump', 'republican', 'democrat', 'harris', 'pence'
+]
+
 candidate_names_2022 = {
-    "Likud": "Benjamin Netanyahu",
-    "Yesh Atid": "Yair Lapid",
-    "Shas": "Aryeh Deri",
-    "Blue and White": "Benny Gantz",
-    "Yamina": "Ayelet Shaked",
+    "Likud": ["netanyahu", "bibi", "likud"],
+    "Yesh Atid": ["lapid", "yesh atid"],
+    "RZP–Otzma": ["rzp", "otzma", "religious zionist party", "smotrich"],
+    "National Unity": ["gantz", "national unity"],
+    "Shas": ["shas", "deri"]
 
 }
-
 candidate_names_2021 = {
-    "Likud": "Benjamin Netanyahu",
-    "Yesh Atid–Telem": "Yair Lapid, Moshe Ya'alon",
-    "Blue and White": "Benny Gantz",
-    "Derekh Eretz": "Yoaz Hendel, Zvi Hauser",
-    "Joint List": "Ayman Odeh",
+    "Likud": ["netanyahu", "bibi", "likud"],
+    "Yesh Atid": ["lapid", "yesh atid"],
+    "Shas": ["shas", "deri"],
+    "Blue and White": ["blue and white", "gantz"],
+    "Yamina": ["bennett", "yamina"]
 
 }
 
 candidate_names_2020 = {
-    "Blue and White": "Benny Gantz",
-    "Likud": "Benjamin Netanyahu",
-    "Joint List": "Ayman Odeh",
-    "Shas": "Aryeh Deri",
-    "Yisrael Beiteinu": "Avigdor Lieberman",
+    "Likud": ["netanyahu", "bibi", "likud"],
+    "Blue and White": ["blue and white", "gantz"],
+    "Joint List": ["joint list", "odeh"],
+    "Shas": ["shas", "deri"],
+    "Gimel": ["utj", "gimel","united torah judaism", "litzman"]
+
+}
+
+
+
+candidate_names_2019b = {
+    "Blue and White": ["blue and white", "gantz"],
+    "Likud": ["netanyahu", "bibi", "likud"],
+    "Joint List": ["joint list", "odeh"],
+    "Shas": ["shas", "deri"],
+    "Yisrael Beytenu": ["yisrael beiteinu", "liberman"]
 
 }
 
 candidate_names_2019a = {
-    "Likud": "Benjamin Netanyahu",
-    "Labor": "Avi Gabbay",
-    "Hatnua": "Tzipi Livni",
-    "Joint List": "Ayman Odeh",
-    "Ta'al": "Ahmad Tibi",
+    "Likud": ["netanyahu", "bibi", "likud"],
+    "Blue and White": ["blue and white", "gantz"],
+    "Shas": ["shas", "deri"],
+    "Gimel": ["utj", "gimel","united torah judaism", "litzman"],
+    "Labor": ["labor", "gabbay"]
 
 }
 
-candidate_names_2019b = {
-    "Likud": "Benjamin Netanyahu",
-    "Blue and White": "Benny Gantz, Yair Lapid",
-    "Shas": "Aryeh Deri",
-    "United Torah Judaism": "Yaakov Litzman",
-    "Hadash–Ta'al": "Ayman Odeh",
+
+
+seat_count_2022 = {
+    "Likud": 32,
+    "Yesh Atid": 24,
+    "RZP–Otzma": 14,
+    "National Unity": 12,
+    "Shas": 11
 
 }
 
-candidate_names_2022_keys = [
-    "Likud",
-    "Yesh Atid",
-    "Shas",
-    "Blue and White",
-    "Yamina",
 
-]
 
-candidate_names_2021_keys = [
-    "Likud",
-    "Yesh Atid",
-    "Blue and White",
-    "Derekh Eretz",
-    "Joint List",
+seat_count_2021 = {
+    "Likud": 30,
+    "Yesh Atid": 17,
+    "Shas": 9,
+    "Blue and White": 8,
+    "Yamina": 7
 
-]
+}
+seat_count_2020 = {
+    "Likud": 36,
+    "Blue and White": 33,
+    "Joint List": 15,
+    "Shas": 9,
+    "Gimel": 7
 
-candidate_names_2020_keys = [
-    "Blue and White",
-    "Likud",
-    "Joint List",
-    "Shas",
-    "Yisrael Beiteinu",
+}
 
-]
+seat_count_2019b = {
+    "Blue and White": 33,
+    "Likud": 32,
+    "Joint List": 13,
+    "Shas": 9,
+    "Yisrael Beytenu": 8
 
-candidate_names_2019a_keys = [
-    "Likud",
-    "Labor",
-    "Hatnua",
-    "Joint List",
-    "Ta'al",
-]
+}
 
-candidate_names_2019b_keys = [
-    "Likud",
-    "Blue and White",
-    "Shas",
-    "United Torah Judaism",
-    "Hadash–Ta'al",
-]
+seat_count_2019a = {
+    "Likud": 35,
+    "Blue and White": 35,
+    "Shas":8,
+    "Gimel": 8,
+    "Labor": 6
 
+}
+
+save_path = 'results/'
 
 class BodyTextSpider(scrapy.Spider):
     name = "bodytext"
@@ -217,7 +228,7 @@ def print_sorted_tfidf(dense_matrix, feature_names, filename):
     print("\n")
 
 
-def plot_reality_check(dense_matrix, feature_names, top_n_words):
+def plot_reality_check(dense_matrix, feature_names, top_n_words, plot_file_name):
     tfidf_scores, sorted_indices = get_tfidf_score_and_indices(dense_matrix)
     sorted_indices = sorted_indices[:top_n_words]
     words = []
@@ -234,7 +245,8 @@ def plot_reality_check(dense_matrix, feature_names, top_n_words):
     plt.ylabel('TF-IDF Score')
     plt.title(f'Top {top_n_words} words by TF-IDF score')
     plt.tight_layout()
-    plt.show()
+    plt.savefig(save_path + plot_file_name)
+    plt.close()
 
 
 def get_articles_list(folders, news_lst):
@@ -286,21 +298,26 @@ def analyze_text_by_topics(tokens, tf_idf_dict):
         'Defense': count_topic_words(tokens, tf_idf_dict, defense_words),
         'Foreign Relations': count_topic_words(tokens, tf_idf_dict,
                                                foreign_relations_words),
-        'Religion': count_topic_words(tokens, tf_idf_dict, religion_words)
+        'Religion': count_topic_words(tokens, tf_idf_dict, religion_words),
+        'US Election': count_topic_words(tokens, tf_idf_dict, US_election_words)
     }
     return results
 
 
 def tokenize_text_from_articles(articles):
     tok = RegexpTokenizer(r"\b\w+(?:[`'’]\w+)?(?!'s)\b")
-    exclusions = ["yesh atid-telem", "tikva hadasha", "yesh atid", "new hope", "blue and white", "derekh eretz", "joint list", "yisrael beiteinu", "united torah judaism"]
+    space_exclusions = ["yisrael beiteinu","united torah judaism","national unity",  "tikva hadasha", "religious zionist party", "yesh atid", "new hope", "blue and white", "derekh eretz", "joint list", "yisrael beiteinu", "united torah judaism"]
+    apostrophe_exclusions = ["ya'alon","sa'ar"]
     text = ""
     for article in articles:
         with open(article, "r", encoding='utf-8') as f:
             a = f.read().lower()
 
-            for exc in exclusions:
+            for exc in space_exclusions:
                 a = a.replace(exc, "_".join(exc.split(" ")))
+            for exc in apostrophe_exclusions:
+                a = a.replace(exc, "".join(exc.split("'")))
+
             tokens = tok.tokenize(a)
             for token in tokens:
                 if token.isnumeric() or "." in token:
@@ -313,21 +330,124 @@ def tokenize_text_from_articles(articles):
     return text
 
 
-def get_tfidf_of_candidates(vectorizer, election_text, candidate_names):
-    tf_idf_matrix = vectorizer.fit_transform([election_text])
+def count_candidate_words(tokens, tf_idf_dict, candidate_words):
+    # Initialize a dictionary to store the TF-IDF sums for each candidate
+    candidate_tfidf_sums = {}
+
+    for candidate, words in candidate_words.items():
+        # Calculate the sum of TF-IDF scores for the candidate's words
+        total_tfidf = sum((tf_idf_dict.get(token, 0) * 100) for token in tokens if token in words)
+        candidate_tfidf_sums[candidate] = total_tfidf
+
+    return candidate_tfidf_sums
+
+def analyze_election_year(text, year, candidate_parties, seat_counts):
+    vectorizer = TfidfVectorizer(token_pattern=r"\b\w+(?:[`'’]\w+)?(?!'s)\b",
+                                 stop_words=list(stop_words), encoding='utf-8')
+
+    tfidf_matrix = vectorizer.fit_transform([text])
     feature_names = vectorizer.get_feature_names_out()
     new_features = []
     for feature in feature_names:
         if "_" in feature:
             feature = feature.replace("_", " ")
-        if "-" in feature:
-            # yesh atid-telem
-            feature = feature.split("-")[0]
         new_features.append(feature)
-    dense_tfidf_matrix = tf_idf_matrix.todense()
+
+    dense_tfidf_matrix = tfidf_matrix.todense()
+    # print_sorted_tfidf(dense_tfidf_matrix, new_features, "All text")
+    # print_sorted_tfidf(dense_tfidf_matrix, feature_names, text)
+    plot_reality_check(dense_tfidf_matrix, new_features, 30, f'top_features{year}')
     tf_idf_dict = {new_features[i]: dense_tfidf_matrix[0, i] for i in range(
         len(new_features))}
-    return {a.lower(): tf_idf_dict[a.lower()] for a in candidate_names}
+
+    res = analyze_text_by_topics(new_features, tf_idf_dict)
+    party_scores = count_candidate_words(new_features, tf_idf_dict, candidate_parties)
+    plot_candidate_scores(party_scores, year, seat_counts)
+
+    wordcloud = WordCloud(width=800, height=400, background_color='white'
+                          ).generate_from_frequencies(tf_idf_dict)
+    plt.figure(figsize=(10, 5))
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.axis('off')
+    plt.savefig(save_path + f'word_cloud_{year}.png')
+    plt.close()
+    return res
+def plot_candidate_scores(party_scores, year, seat_counts):
+    # Extract candidates and their scores
+    parties = list(party_scores.keys())
+    scores = [float(score) for score in party_scores.values()]  # Convert np.float64 to float
+
+    # Create x-axis labels with seat counts, only the first party will say "seats"
+    party_labels = [
+        f"{party} ({seat_counts.get(party, 0)}{' seats' if i == 0 else ''})"
+        for i, party in enumerate(parties)
+    ]
+
+    # Plotting
+    plt.figure(figsize=(10, 6))
+    plt.bar(party_labels, scores, align='center')
+    plt.xlabel('Parties')
+    plt.ylabel('TF-IDF Score')
+    plt.title(f'TF-IDF Scores for Candidate Parties in {year}')
+    plt.xticks(rotation=45, ha='right')
+    plt.ylim((0, 70))
+    plt.tight_layout()
+
+    # Save the plot to a file
+    plt.savefig(save_path + f'party_scores_{year}.png')
+    plt.close()  # Close the plot to free up memory
+def plot_year_comparison(year_data, features):
+
+
+    for feature in features:
+        # Extract values for the feature from each year's data
+        values = [year_data[year].get(feature, np.nan) for year in sorted(year_data.keys())]
+
+        # Plotting
+        plt.figure(figsize=(10, 6))
+        plt.bar(year_data.keys(), values, align='center')
+        plt.xlabel('Year')
+        plt.ylabel('Value')
+        plt.title(f'Comparison of {feature} Over Years')
+        plt.ylim((0,50))  # Set y-axis limits
+        plt.tight_layout()
+
+        # Save the figure to a file
+        plt.savefig(save_path + f'{feature}_comparison.png')
+        plt.close()  # Close the plot to free up memory
+
+def plot_averages(year_data):
+
+    parameters = list(year_data['year_2019a'].keys())  # Assuming each year has the same parameters
+
+    averages = []
+    variances = []
+
+    for param in parameters:
+        param_values = [year_data[year][param] for year in year_data]
+
+        avg = np.mean(param_values)
+        var = np.var(param_values)
+
+        averages.append(avg)
+        variances.append(var)
+
+    plt.figure(figsize=(12, 6))
+    bar_width = 0.35
+    index = np.arange(len(parameters))
+
+    plt.bar(index, averages, bar_width, label='Average', color='blue')
+
+    plt.bar(index + bar_width, variances, bar_width, label='Variance', color='orange')
+
+    plt.xlabel('Parameters')
+    plt.ylabel('Value')
+    plt.title('Average and Variance of Election Parameters')
+    plt.xticks(index + bar_width / 2, parameters, rotation=45, ha='right')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(save_path + 'average_variance_election_parameters.png')
+
 
 
 if __name__ == '__main__':
@@ -371,31 +491,17 @@ if __name__ == '__main__':
     elect_2021_text = tokenize_text_from_articles(elect_2021_article)
     elect_2022_text = tokenize_text_from_articles(elect_2022_article)
 
-    vectorizer = TfidfVectorizer(token_pattern=r"\b\w+(?:[`'’]\w+)?(?!'s)\b",
-                                 stop_words=list(stop_words), encoding='utf-8')
+    year_data ={
+    'year_2019a' : analyze_election_year(elect_2019a_text, '2019a', candidate_names_2019a, seat_count_2019a),
+    'year_2019b' : analyze_election_year(elect_2019b_text, '2019b', candidate_names_2019b, seat_count_2019b),
+    'year_2020' : analyze_election_year(elect_2020_text, '2020', candidate_names_2020, seat_count_2020),
+    'year_2021' : analyze_election_year(elect_2021_text, '2021', candidate_names_2021,seat_count_2021),
+    'year_2022' : analyze_election_year(elect_2022_text, '2022', candidate_names_2022, seat_count_2022)   }
+    features = set()
+    for year in year_data:
+        features.update(year_data[year].keys())
 
-    tfidf_matrix = vectorizer.fit_transform([elect_2021_text])
-    feature_names = vectorizer.get_feature_names_out()
-    new_features = []
-    for feature in feature_names:
-        if "_" in feature:
-            feature = feature.replace("_", " ")
-        new_features.append(feature)
+    # Generate comparison plots for each feature
+    plot_year_comparison(year_data, features)
+    plot_averages(year_data)
 
-    dense_tfidf_matrix = tfidf_matrix.todense()
-    # print_sorted_tfidf(dense_tfidf_matrix, new_features, "All text")
-    # print_sorted_tfidf(dense_tfidf_matrix, feature_names, text)
-    plot_reality_check(dense_tfidf_matrix, new_features, 30)
-    tf_idf_dict = {new_features[i]: dense_tfidf_matrix[0, i] for i in range(
-        len(new_features))}
-
-    a = analyze_text_by_topics(new_features, tf_idf_dict)
-
-    wordcloud = WordCloud(width=800, height=400, background_color='white'
-                          ).generate_from_frequencies(tf_idf_dict)
-    plt.figure(figsize=(10, 5))
-    plt.imshow(wordcloud, interpolation='bilinear')
-    plt.axis('off')
-    plt.show()
-
-    # party_dict = {name.lower(): count_topic_words(new_features, tf_idf_dict, candidate_names_2022) for name in candidate_names_2022_keys}
