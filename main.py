@@ -98,7 +98,7 @@ candidate_names_2019b = {
     "Likud": ["netanyahu", "bibi", "likud"],
     "Joint List": ["joint list", "odeh"],
     "Shas": ["shas", "deri"],
-    "Yisrael Beytenu": ["yisrael beiteinu", "liberman"]
+    "Yisrael Beytenu": ["yisrael beytenu", "liberman"]
 
 }
 
@@ -306,7 +306,7 @@ def analyze_text_by_topics(tokens, tf_idf_dict):
 
 def tokenize_text_from_articles(articles):
     tok = RegexpTokenizer(r"\b\w+(?:[`'’]\w+)?(?!'s)\b")
-    space_exclusions = ["yisrael beiteinu","united torah judaism","national unity",  "tikva hadasha", "religious zionist party", "yesh atid", "new hope", "blue and white", "derekh eretz", "joint list", "yisrael beiteinu", "united torah judaism"]
+    space_exclusions = ["yisrael beytenu","united torah judaism","national unity",  "tikva hadasha", "religious zionist party", "yesh atid", "new hope", "blue and white", "derekh eretz", "joint list", "yisrael beiteinu", "united torah judaism"]
     apostrophe_exclusions = ["ya'alon","sa'ar"]
     text = ""
     for article in articles:
