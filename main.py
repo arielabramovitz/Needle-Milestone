@@ -4,12 +4,14 @@ from nltk.tokenize import word_tokenize, RegexpTokenizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.corpus import stopwords
 import scrapy
-from scrapy.crawler import CrawlerProcess
-import os
-import matplotlib.pyplot as plt
-from nltk.stem import WordNetLemmatizer
 from nltk.stem import porter
 from wordcloud import WordCloud
+from textblob import TextBlob
+from summa import summarizer
+import os
+import textstat
+import matplotlib.pyplot as plt
+
 
 nl.download('stopwords')
 nl.download('punkt')
@@ -197,16 +199,6 @@ def preprocess(text):
     return ' '.join(filtered_tokens)
 
 
-# def print_sorted_tfidf(dense_matrix, feature_names, filenames):
-#     for i, filename in enumerate(filenames):
-#         print(f"TF-IDF values for {filename}:")
-#         tfidf_scores = dense_matrix[i].tolist()[0]
-#         tfidf_scores = np.array(tfidf_scores)
-#         sorted_indices = np.argsort(tfidf_scores)[::-1]  # Sort in descending order
-#         for idx in sorted_indices:
-#             if tfidf_scores[idx] > 0:  # Print only non-zero values
-#                 print(f"{feature_names[idx]}: {tfidf_scores[idx]:.4f}")
-#         print("\n")
 
 
 def get_tfidf_score_and_indices(dense_matrix):
@@ -219,9 +211,7 @@ def get_tfidf_score_and_indices(dense_matrix):
 def print_sorted_tfidf(dense_matrix, feature_names, filename):
     print(f"TF-IDF values for {filename}:")
     tfidf_scores, sorted_indices = get_tfidf_score_and_indices(dense_matrix)
-    # tfidf_scores = dense_matrix[0].tolist()[0]
-    # tfidf_scores = np.array(tfidf_scores)
-    # sorted_indices = np.argsort(tfidf_scores)[::-1]  # Sort in descending order
+
     for idx in sorted_indices:
         if tfidf_scores[idx] > 0:  # Print only non-zero values
             print(f"{feature_names[idx]}: {tfidf_scores[idx]:.4f}")
@@ -254,7 +244,7 @@ def get_articles_list(folders, news_lst):
     for folder in folders:
         range_articles = 11
         articles_lst += [
-            f'{folder}\{name}{i}.txt'
+            f'{folder}\\{name}{i}.txt'
             for name in news_lst
             for i in range(1, range_articles)
         ]
@@ -265,7 +255,7 @@ def get_election_list(folder, news_lst):
     election_lst = []
     range_articles = 11
     election_lst += [
-        f'{folder}\{name}{i}.txt'
+        f'{folder}\\{name}{i}.txt'
         for name in news_lst
         for i in range(1, range_articles)
     ]
@@ -354,8 +344,7 @@ def analyze_election_year(text, year, candidate_parties, seat_counts):
         new_features.append(feature)
 
     dense_tfidf_matrix = tfidf_matrix.todense()
-    # print_sorted_tfidf(dense_tfidf_matrix, new_features, "All text")
-    # print_sorted_tfidf(dense_tfidf_matrix, feature_names, text)
+
     plot_reality_check(dense_tfidf_matrix, new_features, 30, f'top_features{year}')
     tf_idf_dict = {new_features[i]: dense_tfidf_matrix[0, i] for i in range(
         len(new_features))}
@@ -450,10 +439,160 @@ def plot_averages(year_data):
 
 
 
+
+
+
+def summarize_articles(year):
+    summaries = {}
+    year_folder = f"elections{year}"
+    folder_path = os.path.join(year_folder)
+
+    for filename in os.listdir(folder_path):
+        if filename.endswith('.txt'):
+            file_path = os.path.join(folder_path, filename)
+
+            with open(file_path, 'r', encoding='utf-8') as file:
+                content = file.read()
+                summary = summarizer.summarize(content, ratio=0.1)
+                summaries[filename] = summary
+
+
+    return summaries
+
+
+def summarize_by_year(election_year):
+    summaries = summarize_articles(election_year)
+
+    # Save summaries to a file
+    with open(save_path + f'{election_year}_summaries.txt', 'w', encoding='utf8') as f:
+        for filename, summary in summaries.items():
+            f.write(f"\nSummary for {filename}:\n")
+            f.write(summary)
+            f.write("\n\n")
+
+def summarize_years(years):
+    for year in years:
+        summarize_by_year(year)
+
+
+def perform_sentiment_analysis(text):
+
+    blob = TextBlob(text)
+    return blob.sentiment.polarity
+
+
+def analyze_sentiment_for_folder(year):
+
+    sentiment_scores = {}
+
+    for filename in os.listdir(f'elections{year}'):
+        file_path = os.path.join(f'elections{year}', filename)
+
+        # Open and read the content of each file
+        with open(file_path, 'r', encoding='utf-8') as file:
+            content = file.read()
+
+        # Perform sentiment analysis
+        polarity_score = perform_sentiment_analysis(content)
+        sentiment_scores[filename] = polarity_score
+
+    return sentiment_scores
+
+
+def plot_sentiment_scores(sentiment_scores, year):
+
+    files = list(sentiment_scores.keys())
+    scores = list(sentiment_scores.values())
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(files, scores, color='blue')
+    plt.xlabel('Files')
+    plt.ylabel('Polarity Score')
+    plt.title(f'Sentiment Polarity Scores for {year} Elections')
+    plt.xticks(rotation=45, ha='right')
+    plt.ylim((-0.2,0.2))
+    plt.tight_layout()
+
+    # Save the plot to a file
+    plt.savefig(save_path + f'sentiment_polarity_{year}.png')
+
+def create_sentiment_plots(years):
+    for year in years:
+        sentiment = analyze_sentiment_for_folder(year)
+        plot_sentiment_scores(sentiment, year)
+
+
+
+
+
+
+def analyze_readability(text):
+    flesch_reading_ease = textstat.flesch_reading_ease(text)
+    flesch_kincaid_grade = textstat.flesch_kincaid_grade(text)
+    smog_index = textstat.smog_index(text)
+
+    return {
+        "Flesch Reading Ease": flesch_reading_ease,
+        "Flesch-Kincaid Grade": flesch_kincaid_grade,
+        "SMOG Index": smog_index
+    }
+
+
+def analyze_year_folder(year):
+    readability_scores = []
+
+    # Read all text files in the specified folder
+    for filename in os.listdir(f'elections{year}'):
+        if filename.endswith(".txt"):  # Assuming text files have .txt extension
+            with open(os.path.join(f'elections{year}', filename), 'r', encoding='utf-8') as file:
+                text = file.read()
+                scores = analyze_readability(text)
+                readability_scores.append(scores)
+
+    # Calculate average readability scores
+    if readability_scores:
+        avg_scores = {
+            "Flesch Reading Ease": np.mean([score["Flesch Reading Ease"] for score in readability_scores]),
+            "Flesch-Kincaid Grade": np.mean([score["Flesch-Kincaid Grade"] for score in readability_scores]),
+            "SMOG Index": np.mean([score["SMOG Index"] for score in readability_scores])
+        }
+    else:
+        avg_scores = {
+            "Flesch Reading Ease": 0,
+            "Flesch-Kincaid Grade": 0,
+            "SMOG Index": 0
+        }
+
+    return avg_scores
+
+
+def analyze_readability_across_years(years):
+    results = {}
+    for year in years:
+
+        results[year] = analyze_year_folder(year)
+    return results
+
+
+def plot_readability_results(readability_results):
+    metrics = list(readability_results[next(iter(readability_results))].keys())
+    x = list(readability_results.keys())
+
+    for metric in metrics:
+        y = [readability_results[year][metric] for year in x]
+
+        plt.figure(figsize=(10, 6))
+        plt.bar(x, y)
+        plt.xlabel('Years')
+        plt.ylabel(metric)
+        plt.title(f'Average {metric} Across Election Years')
+        plt.tight_layout()
+        plt.savefig(save_path + f'{metric.lower().replace(" ", "_")}_comparison.png')
+
+
+
 if __name__ == '__main__':
-    # process = CrawlerProcess()
-    # process.crawl(BodyTextSpider)
-    # process.start()
+
 
     stop_words = set(stopwords.words('english'))
     articles_folders = ["elections2019a", "elections2019b", "elections2020",
@@ -472,11 +611,6 @@ if __name__ == '__main__':
      elect_2021_article, elect_2022_article) = (
         get_all_elections_list(articles_folders, news_list))
 
-    # vectorizer = TfidfVectorizer(input='filename', stop_words='english', encoding='utf-8')
-    # tfidf_matrix = vectorizer.fit_transform(articles)
-    # feature_names = vectorizer.get_feature_names_out()
-    # dense_tfidf_matrix = tfidf_matrix.todense()
-    # print_sorted_tfidf(dense_tfidf_matrix, feature_names, articles)
 
     stemmer = porter.PorterStemmer()
 
@@ -504,4 +638,12 @@ if __name__ == '__main__':
     # Generate comparison plots for each feature
     plot_year_comparison(year_data, features)
     plot_averages(year_data)
+    years = ['2022', '2021', '2020', '2019b', '2019a']
+    summarize_years(years)
+    create_sentiment_plots(years)
+    plot_readability_results(analyze_readability_across_years(years))
+
+
+
+
 
