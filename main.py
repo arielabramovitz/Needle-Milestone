@@ -3,7 +3,6 @@ import nltk as nl
 from nltk.tokenize import word_tokenize, RegexpTokenizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.corpus import stopwords
-import scrapy
 from nltk.stem import porter
 from wordcloud import WordCloud
 from textblob import TextBlob
@@ -64,7 +63,7 @@ religion_words = [
     'nun', 'religious', 'sect', 'denomination']
 
 US_election_words = [
-    'biden', 'trump', 'republican', 'democrat', 'harris', 'pence'
+    'biden', 'trump', 'republican', 'democrat', 'harris', 'pence', 'USA'
 ]
 
 candidate_names_2022 = {
@@ -89,7 +88,7 @@ candidate_names_2020 = {
     "Blue and White": ["blue and white", "gantz"],
     "Joint List": ["joint list", "odeh"],
     "Shas": ["shas", "deri"],
-    "Gimel": ["utj", "gimel","united torah judaism", "litzman"]
+    "United Torah Judaism": ["utj", "gimel","united torah judaism", "litzman"]
 
 }
 
@@ -108,7 +107,7 @@ candidate_names_2019a = {
     "Likud": ["netanyahu", "bibi", "likud"],
     "Blue and White": ["blue and white", "gantz"],
     "Shas": ["shas", "deri"],
-    "Gimel": ["utj", "gimel","united torah judaism", "litzman"],
+    "United Torah Judaism": ["utj", "gimel","united torah judaism", "litzman"],
     "Labor": ["labor", "gabbay"]
 
 }
@@ -139,7 +138,7 @@ seat_count_2020 = {
     "Blue and White": 33,
     "Joint List": 15,
     "Shas": 9,
-    "Gimel": 7
+    "United Torah Judaism": 7
 
 }
 
@@ -156,49 +155,12 @@ seat_count_2019a = {
     "Likud": 35,
     "Blue and White": 35,
     "Shas":8,
-    "Gimel": 8,
+    "United Torah Judaism": 8,
     "Labor": 6
 
 }
 
 save_path = 'results/'
-
-class BodyTextSpider(scrapy.Spider):
-    name = "bodytext"
-    urls = [
-
-    ]
-
-    def start_requests(self):
-        with open('urls.txt', 'r') as f:
-            urls = f.readlines()
-        for url in urls:
-            url = url.strip()
-            if url:
-                yield scrapy.Request(url=url, callback=self.parse)
-
-    def parse(self, response, **kwargs):
-        # Extract body text
-        body_text = ''.join(response.xpath('//body//text()').getall()).strip()
-
-        # Ensure results directory exists
-        if not os.path.exists('results'):
-            os.makedirs('results')
-
-        # Save the result to a file named after the URL
-        url = response.url.replace('http://', '').replace('https://', '').replace('/', '_')
-        with open(f'results/{url}.txt', 'w', encoding='utf-8') as f:
-            f.write(body_text)
-
-        self.log(f'Saved file {url}.txt')
-
-
-def preprocess(text):
-    tokens = word_tokenize(text)
-    filtered_tokens = [word for word in tokens if word.lower() not in stop_words and word.isalnum()]
-    return ' '.join(filtered_tokens)
-
-
 
 
 def get_tfidf_score_and_indices(dense_matrix):
@@ -207,15 +169,6 @@ def get_tfidf_score_and_indices(dense_matrix):
     sorted_indices = np.argsort(tfidf_scores)[::-1]
     return tfidf_scores, sorted_indices
 
-
-def print_sorted_tfidf(dense_matrix, feature_names, filename):
-    print(f"TF-IDF values for {filename}:")
-    tfidf_scores, sorted_indices = get_tfidf_score_and_indices(dense_matrix)
-
-    for idx in sorted_indices:
-        if tfidf_scores[idx] > 0:  # Print only non-zero values
-            print(f"{feature_names[idx]}: {tfidf_scores[idx]:.4f}")
-    print("\n")
 
 
 def plot_reality_check(dense_matrix, feature_names, top_n_words, plot_file_name):
